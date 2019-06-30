@@ -155,34 +155,10 @@ final class PdoStreamIterator implements StreamIterator
             $this->currentItem->no = (int) $this->currentItem->no;
             $this->currentFromNumber = $this->currentItem->no;
         } else {
-            $this->batchPosition++;
-            if ($this->forward) {
-                $from = $this->currentFromNumber + 1;
-            } else {
-                $from = $this->currentFromNumber - 1;
-            }
-            $this->selectStatement = $this->buildSelectStatement($from);
-            try {
-                $this->selectStatement->execute();
-            } catch (PDOException $exception) {
-                // ignore and check error code
-            }
+            $this->currentKey = -1;
+            $this->currentItem = false;
 
-            if ($this->selectStatement->errorCode() !== '00000') {
-                throw RuntimeException::fromStatementErrorInfo($this->selectStatement->errorInfo());
-            }
-
-            $this->selectStatement->setFetchMode(PDO::FETCH_OBJ);
-
-            $this->currentItem = $this->selectStatement->fetch();
-
-            if (false === $this->currentItem) {
-                $this->currentKey = -1;
-            } else {
-                $this->currentKey++;
-                $this->currentItem->no = (int) $this->currentItem->no;
-                $this->currentFromNumber = $this->currentItem->no;
-            }
+            return;
         }
     }
 
